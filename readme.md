@@ -1,8 +1,10 @@
 
 # Projeto Easy Reversi Server
 
-Projeto criado para a disciplina de Sistemas Multiagentes. Oferece classes
-básicas para o jogo **Reversi** modificado.
+Este projeto oferece funções básicas e servidor para o jogo **Reversi** (com uma leve modificação, v. seção *Regras do Jogo* abaixo).
+
+Criado para a disciplina de Sistemas Multiagentes, semestre 2022.1, DC/UFRPE.
+
 
 ## Principais arquivos
 
@@ -21,6 +23,7 @@ o "esqueleto" do código, trocando apenas a função que faz a escolha da jogada
 - O tabuleiro padrão tem tamanho 8x8, mas o código permite tamanhos pares diversos.
 - Se você jogar em uma posição ao lado de um adversáio, todas as peças adversárias consecutivas que estiverem entre duas peças suas na mesma linha (horizontal, vertical ou diagonal) se tornam suas.
 - Você só pode jogar em posições que conquistam peças adversárias.
+- Jogadas representadas por pares `x y` onde `x` é a coluna, e `y` é a linha. Os valores são números iniciados em `0`, com `0 0` sendo o canto superior esquerdo.
 - (Variante) O tabuleiro pode iniciar com "pedras", que indicam posições proibidas de jogar.
 - Você sempre pode passar a vez.
 - Se não tiver mais posições válidas para jogar, é obrigatório passar (mas o servidor aguarda o jogador indicar que passou).
