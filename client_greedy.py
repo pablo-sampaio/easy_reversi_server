@@ -1,11 +1,12 @@
 import socket
+import json
 
 import reversi as rev
 from greedy_base import chooseGreedyMove
 
 
 def receiveMsg(conn):
-    msg = conn.recv(128)
+    msg = conn.recv(256)
     if msg is not None:
         msg = msg.decode().strip()
     return msg
@@ -31,9 +32,16 @@ def sendGreedyMove(client_socket, board, piece):
     assert receiveMsg(client_socket) == 'ok'
 
 
+def message_to_board(full_message):
+    str_board = full_message.split(maxsplit=1)
+    assert str_board[0] == 'board', f'Received {full_message}'
+    dict_board_params = json.loads(str_board[1])
+    return rev.getNewBoard(**dict_board_params)
+
+
 def client_program():
-    host = socket.gethostname()  # as both code is running on same pc
-    port = 5123  # socket server port number
+    host = socket.gethostname()  # assumes that server and clients are running on the same pc
+    port = 5123                  # socket server port number
 
     client_socket = socket.socket()
     client_socket.connect((host, port))
@@ -48,10 +56,8 @@ def client_program():
     while data != 'disconnect':
         print("NEW MATCH")
 
-        # a new match starts
-        assert data.startswith('board') # TODO: parse the incoming text representing a board
-        print("Using default board")
-        board = rev.getNewBoard(stones=[(1,6), (6,6)])
+        # a new match is starting, so parse the board
+        board = message_to_board(data)
 
         data = receiveMsg(client_socket)
         assert data.startswith('piece')

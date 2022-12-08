@@ -88,7 +88,7 @@ def PLAY_GAME():
         mainBoard = rev.getNewBoard(stones=[(1,6), (6,6)])
         
         # tabuleiros de tamanhos diferentes
-        #mainBoard = rev.getNewBoard(sizeX=10, sizeY=10, stones=[(2,7), (7,7)])
+        #mainBoard = rev.getNewBoard(sizeX=10, sizeY=10, stones=[(2,6), (2,7), (3,7), (6,2), (7,2), (7,3)])
         #mainBoard = rev.getNewBoard(sizeX=6,sizeY=6)
         
         playerTile, computerTile = enterPlayerTile()

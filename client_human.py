@@ -2,7 +2,7 @@ import socket
 
 
 def receiveMsg(conn):
-    msg = conn.recv(128)
+    msg = conn.recv(256)
     if msg is not None:
         msg = msg.decode().strip()
     return msg
@@ -16,6 +16,8 @@ def sendHumanMove(client_socket):
     # repeats until a correctly formatted message is given
     while True:
         moveMsg = input("Your move? -> ").lower().strip()
+        if len(moveMsg) == 0:
+            continue
         # sends and waits for confirmation
         sendMsg(client_socket, moveMsg)
         data = receiveMsg(client_socket)
@@ -27,8 +29,8 @@ def sendHumanMove(client_socket):
 
 
 def client_program():
-    host = socket.gethostname()  # as both code is running on same pc
-    port = 5123  # socket server port number
+    host = socket.gethostname()  # assumes that server and clients are running on the same pc
+    port = 5123                  # socket server port number
 
     client_socket = socket.socket()
     client_socket.connect((host, port))
@@ -44,9 +46,9 @@ def client_program():
     while data != 'disconnect':
         print("NEW MATCH")
 
-        # a new match starts
-        assert data.startswith('board') # TODO: parse the incoming text representing a board
-        print("Using default board")
+        # receive board parameters
+        assert data.startswith('board') # in this version, we don't parse the board
+        print("Board parameters:", data.split(maxsplit=1)[1])
 
         data = receiveMsg(client_socket)
         assert data.startswith('piece')

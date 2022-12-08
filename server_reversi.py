@@ -1,5 +1,6 @@
 import socket
 import time
+import json
 
 import reversi as rev
 
@@ -41,18 +42,13 @@ def server_program():
     
     player2 = Player(p2name, conn2, '-')
 
-    # cria o tabuleiro
-    board = rev.getNewBoard(stones=[(1,6), (6,6)])
-
-    #mainBoard = rev.getNewBoard(sizeX=14,sizeY=14)
-    #rev.resetBoard(mainBoard, stones=[(1,6), (8,6)])
-
     # inicia as partidas
     print("MATCH 1")
-    serve_match(player1, player2, board)
+    board_param = dict(sizeX=8, sizeY=8, stones=[(1,6), (6,6)])
+    serve_match(player1, player2, board_param)
     
-    #print("MATCH 2")
-    #serve_match(player2, player1, board)
+    print("MATCH 2")
+    serve_match(player2, player1, board_param)
 
     print("ALL MATCHES ENDED")
 
@@ -64,14 +60,8 @@ def server_program():
     player2.conn.close()
 
 
-# TODO: falta fazer
-def board_to_str(board):
-    return "board standard" # TODO
-
-
-# para ser usado pelo cliente!
-def str_to_board(board):
-    return "standard"
+def board_to_message(dict_board_params):
+    return "board " + json.dumps(dict_board_params)
 
 
 def sendMsg(player, msg):
@@ -82,14 +72,14 @@ def receiveMsg(player):
     return player.conn.recv(128).decode().strip()
 
 
-def serve_match(playerX, playerO, initialBoard):
-    mainBoard = rev.getBoardCopy(initialBoard)
+def serve_match(playerX, playerO, dict_board_params):
     showHints = True
+    mainBoard = rev.getNewBoard(**dict_board_params)
 
     # envia tabuleiro e peças de cada player
-    sendMsg(playerX, board_to_str(mainBoard))
-    sendMsg(playerO, board_to_str(mainBoard))
-
+    sendMsg(playerX, board_to_message(dict_board_params))
+    sendMsg(playerO, board_to_message(dict_board_params))
+ 
     sendMsg(playerX, "piece X")
     playerX.piece = 'X'
     
