@@ -58,6 +58,7 @@ def server_program():
 
     player1.conn.close()
     player2.conn.close()
+    server_socket.close()
 
 
 def board_to_message(dict_board_params):
