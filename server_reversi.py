@@ -18,7 +18,7 @@ def server_program():
     port = 5123  # initiate port number above 1024
 
     server_socket = socket.socket()  # get instance
-   
+
     server_socket.bind((host, port))
 
     print("STARTING REVERSI SERVER")
@@ -33,7 +33,7 @@ def server_program():
     conn1.send("name?".encode())
     p1name = conn1.recv(128).decode()
     print(" - player 1 is ", p1name)
-    
+
     player1 = Player(p1name, conn1, '-')
 
     # aceita a conexão com o 2o cliente
@@ -44,17 +44,31 @@ def server_program():
     if p2name == p1name:
         p2name = p2name + '_'
     print(" - player 2 is ", p2name)
-    
+
     player2 = Player(p2name, conn2, '-')
 
     # inicia as partidas
-    overall_results = {p1name:0, p2name:0}
+    overall_results = {p1name: 0, p2name: 0}
 
     print("MATCH 1")
-    board_param = dict(sizeX=8, sizeY=8, stones=[(1,6), (6,6)])
+    board_param = dict(sizeX=8, sizeY=8, stones=[(1, 6), (6, 6)])
     serve_match(player1, player2, board_param, overall_results)
-    
+
     print("MATCH 2")
+    serve_match(player2, player1, board_param, overall_results)
+
+    print("MATCH 3")
+    board_param = dict(sizeX=8, sizeY=8, stones=[(3,6), (6,6)])
+    serve_match(player1, player2, board_param, overall_results)
+
+    print("MATCH 4")
+    serve_match(player2, player1, board_param, overall_results)
+
+    print("MATCH 5")
+    board_param = dict(sizeX=10, sizeY=10, stones=[(2,6), (2,7), (3,7), (6,7), (7,7), (7,6)])
+    serve_match(player1, player2, board_param, overall_results)
+
+    print("MATCH 6")
     serve_match(player2, player1, board_param, overall_results)
 
     print("ALL MATCHES ENDED")
@@ -86,7 +100,7 @@ def receiveMsg(player):
 
 
 def receiveValidMoveMsg(player, board):
-    start_time = time.time() - 0.1  # to give +0.1s due to loss of time in overhead 
+    start_time = time.time() + 0.1  # to give +0.1s due to loss of time in overhead
     for trials in range(2):
         moveMsg = receiveMsg(player)
         if moveMsg == 'pass':
@@ -124,14 +138,15 @@ def serve_match(playerX, playerO, dict_board_params, overall_results):
     # envia tabuleiro e peças de cada player
     sendMsg(playerX, board_to_message(dict_board_params))
     sendMsg(playerO, board_to_message(dict_board_params))
- 
+    time.sleep(0.1)
+
     sendMsg(playerX, "piece X")
     playerX.piece = 'X'
-    playerX.penaly = 0
-    
+    playerX.penalty = 0
+
     sendMsg(playerO, "piece O")
     playerO.piece = 'O'
-    playerO.penaly = 0
+    playerO.penalty = 0
 
     player, advPlayer = playerX, playerO
     passCount = 0
@@ -144,7 +159,7 @@ def serve_match(playerX, playerO, dict_board_params, overall_results):
             rev.drawBoard(board)
 
         printScore(playerX, playerO, board)
-        
+        print("Player %s's turn" % player.name)
         move = receiveValidMoveMsg(player, board)
 
         if move == 'abort':
@@ -165,14 +180,14 @@ def serve_match(playerX, playerO, dict_board_params, overall_results):
         else:
             passCount = 0
             rev.makeMove(board, player.piece, move[0], move[1])
-            
+
             sendMsg(player, "ok")
             sendMsg(advPlayer, f"{player.piece} {move[0]} {move[1]}")
             print(f"{player.name} move:", move[0], move[1])
 
             player, advPlayer = advPlayer, player
 
-    #print("Two consecutive passes.")
+    # print("Two consecutive passes.")
     print("End of game.")
 
     # mostra e envia os scores finais
@@ -184,7 +199,7 @@ def serve_match(playerX, playerO, dict_board_params, overall_results):
     scoreMsg = f"end X {scores['X']} O {scores['O']}"
     sendMsg(playerX, scoreMsg)
     sendMsg(playerO, scoreMsg)
-
+    time.sleep(0.1)
     if scores['X'] > scores['O']:
         overall_results[playerX.name] += 1.0
     elif scores['O'] > scores['X']:
@@ -192,7 +207,7 @@ def serve_match(playerX, playerO, dict_board_params, overall_results):
     else:
         overall_results[playerX.name] += 0.5
         overall_results[playerO.name] += 0.5
-
+    # print(overall_results)
 
 def printScore(playerX, playerO, board):
     scores = rev.getScoreOfBoard(board)
